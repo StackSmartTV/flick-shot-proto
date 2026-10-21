@@ -1,0 +1,3 @@
+{ "name": "Flick Shot", "short_name": "Flick Shot", "start_url": "./", "display": "fullscreen", "orientation": "portrait",
+  "background_color": "#180830", "theme_color": "#180830",
+  "icons": [ { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }, { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" } ] }

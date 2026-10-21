@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#180830">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flick Shot">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <title>Flick Shot</title>
+  <style>
+    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#0b0418; touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; overscroll-behavior:none; }
+    #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+    @supports (padding: env(safe-area-inset-bottom)) { #wrap { top:env(safe-area-inset-top); bottom:env(safe-area-inset-bottom); } }
+    #unity-canvas { width:100%; height:100%; display:block; background:#0b0418; outline:none; touch-action:none; }
+    @media (min-aspect-ratio: 10/16) { #unity-canvas { height:100%; width:auto; aspect-ratio: 9 / 19.5; } }
+    #loader { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; font:italic 900 54px/1 'Arial Black', Impact, sans-serif; letter-spacing:1px; background:radial-gradient(circle at 50% 40%,#3a1670 0%,#0b0418 70%); }
+    #loader span { color:#ff7a18; }
+    #loader small { font:700 15px/1 Arial, sans-serif; letter-spacing:3px; color:#cbb8ff; margin-top:14px; font-style:normal; }
+    #bar { width:62vw; max-width:300px; height:10px; margin-top:26px; background:#24113f; border-radius:6px; overflow:hidden; }
+    #fill { width:0%; height:100%; background:linear-gradient(90deg,#ffb347,#ff5a0a); }
+    #rotate { position:fixed; inset:0; display:none; z-index:10; align-items:center; justify-content:center; text-align:center; background:#0b0418; color:#fff; font:900 26px/1.2 'Arial Black',sans-serif; }
+    @media (orientation: landscape) and (pointer: coarse) and (max-height: 600px) { #rotate { display:flex; } }
+    #msg { position:fixed; bottom:12px; left:0; right:0; text-align:center; color:#fff; font:14px sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="wrap"><canvas id="unity-canvas" tabindex="-1"></canvas></div>
+  <div id="loader"><div>FLICK <span>SHOT</span></div><small>3D PROTOTYPE</small><div id="bar"><div id="fill"></div></div></div>
+  <div id="rotate">Turn your phone upright 🏀</div>
+  <div id="msg"></div>
+  <script>
+    // iOS Safari: resume every WebAudio context Unity creates inside a real user gesture
+    (function () {
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+      var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) return;
+      var ctxs = window.__fsCtxs = [];
+      function W(a, b) { var c = b !== undefined ? new Ctx(a, b) : (a !== undefined ? new Ctx(a) : new Ctx()); ctxs.push(c); return c; }
+      W.prototype = Ctx.prototype; window.AudioContext = W; if (window.webkitAudioContext) window.webkitAudioContext = W;
+      function unlock() {
+        ctxs.forEach(function (c) { try { if (c.state !== 'running') c.resume(); var b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0); } catch (e) {} });
+      }
+      ['touchend', 'pointerup', 'mouseup', 'click', 'keydown'].forEach(function (ev) { document.addEventListener(ev, unlock, true); });
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) unlock(); });
+    })();
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(function () {}); } catch (e) {}
+    var q = new URLSearchParams(location.search);
+    var dpr = Math.min(window.devicePixelRatio || 1, parseFloat(q.get('dpr') || '2.5'));
+    var canvas = document.querySelector("#unity-canvas");
+    var buildUrl = "Build";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/WebGL.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Stack Smarter",
+      productName: "Flick Shot",
+      productVersion: "0.1.0",
+      devicePixelRatio: dpr,
+      matchWebGLToCanvasSize: true,
+      showBanner: function (m, t) { if (t === 'error') document.querySelector('#msg').textContent = m; console.log(m); }
+    };
+    var script = document.createElement("script");
+    script.src = buildUrl + "/WebGL.loader.js";
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (p) { document.querySelector("#fill").style.width = (100 * p) + "%"; })
+        .then(function (inst) { window.unityInstance = inst; document.querySelector("#loader").style.display = "none"; })
+        .catch(function (m) { document.querySelector('#msg').textContent = m; });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
