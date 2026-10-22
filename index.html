@@ -46,6 +46,9 @@
       ['touchend', 'pointerup', 'mouseup', 'click', 'keydown'].forEach(function (ev) { document.addEventListener(ev, unlock, true); });
       document.addEventListener('visibilitychange', function () { if (!document.hidden) unlock(); });
     })();
+    // v13 auto-pause: tab hidden / window blur / page hide -> Game.AutoPause (pauses only during a run)
+    (function () { function ap() { try { if (window.unityInstance) window.unityInstance.SendMessage('Game', 'AutoPause'); } catch (e) {} }
+      document.addEventListener('visibilitychange', function () { if (document.hidden) ap(); }); window.addEventListener('blur', ap); window.addEventListener('pagehide', ap); })();
     try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('portrait').catch(function () {}); } catch (e) {}
     var q = new URLSearchParams(location.search);
     var dpr = Math.min(window.devicePixelRatio || 1, parseFloat(q.get('dpr') || '2.5'));
@@ -53,9 +56,9 @@
     var buildUrl = "Build";
     var config = {
       arguments: [],
-      dataUrl: buildUrl + "/Flick-v12.data.unityweb",
-      frameworkUrl: buildUrl + "/Flick-v12.framework.js.unityweb",
-      codeUrl: buildUrl + "/Flick-v12.wasm.unityweb",
+      dataUrl: buildUrl + "/Flick-v13.data.unityweb",
+      frameworkUrl: buildUrl + "/Flick-v13.framework.js.unityweb",
+      codeUrl: buildUrl + "/Flick-v13.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "Stack Smarter",
       productName: "Flick Shot",
@@ -65,7 +68,7 @@
       showBanner: function (m, t) { if (t === 'error') document.querySelector('#msg').textContent = m; console.log(m); }
     };
     var script = document.createElement("script");
-    script.src = buildUrl + "/Flick-v12.loader.js";
+    script.src = buildUrl + "/Flick-v13.loader.js";
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) { document.querySelector("#fill").style.width = (100 * p) + "%"; })
         .then(function (inst) { window.unityInstance = inst; document.querySelector("#loader").style.display = "none"; })
