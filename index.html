@@ -53,9 +53,9 @@
     var buildUrl = "Build";
     var config = {
       arguments: [],
-      dataUrl: buildUrl + "/WebGL.data.unityweb",
-      frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
-      codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+      dataUrl: buildUrl + "/Flick-v12.data.unityweb",
+      frameworkUrl: buildUrl + "/Flick-v12.framework.js.unityweb",
+      codeUrl: buildUrl + "/Flick-v12.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "Stack Smarter",
       productName: "Flick Shot",
@@ -65,7 +65,7 @@
       showBanner: function (m, t) { if (t === 'error') document.querySelector('#msg').textContent = m; console.log(m); }
     };
     var script = document.createElement("script");
-    script.src = buildUrl + "/WebGL.loader.js";
+    script.src = buildUrl + "/Flick-v12.loader.js";
     script.onload = function () {
       createUnityInstance(canvas, config, function (p) { document.querySelector("#fill").style.width = (100 * p) + "%"; })
         .then(function (inst) { window.unityInstance = inst; document.querySelector("#loader").style.display = "none"; })
